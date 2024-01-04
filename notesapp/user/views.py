@@ -1,8 +1,8 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer
-from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 class UserSignUpView(generics.CreateAPIView):
     serializer_class = UserSerializer
@@ -17,7 +17,12 @@ class UserSignUpView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        Token.objects.create(user=user)
+        refresh = RefreshToken.for_user(user)
+        response_data = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
-class UserLoginView(ObtainAuthToken):
+class UserLoginView(TokenObtainPairView):
     permission_classes = [permissions.AllowAny]
