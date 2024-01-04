@@ -46,11 +46,14 @@ class NoteDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        response_data = {'message': 'Note deleted successfully'}
+        return Response(response_data, status=status.HTTP_200_OK)
+
     def perform_destroy(self, instance):
         instance.soft_delete()
-        response_data = {'message': 'Note deleted successfully'}
-
-        return Response(response_data, status=status.HTTP_200_OK)
 
 class NoteShareView(generics.CreateAPIView):
     queryset = NoteShare.objects.all()
@@ -58,15 +61,19 @@ class NoteShareView(generics.CreateAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
         note_id = self.kwargs['pk']
         note = generics.get_object_or_404(Note, pk=note_id, user=self.request.user)
         shared_with_usernames = self.request.data.get('shared_with', [])
         
         for username in shared_with_usernames:
-            shared_user = User.objects.get(username=username)
-            NoteShare.objects.create(note=note, shared_with=shared_user)
-
+            try:
+                shared_user = User.objects.get(username=username)
+                NoteShare.objects.create(note=note, shared_with=shared_user)
+            except User.DoesNotExist as e:
+                response_data = {'message': f'User with name {username} does not exist'}
+                return Response(response_data, status=status.HTTP_404_NOT_FOUND)
+                
         response_data = {'message': 'Note shared successfully'}
         return Response(response_data, status=status.HTTP_201_CREATED)
 
