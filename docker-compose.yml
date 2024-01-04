@@ -9,3 +9,12 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+
+  redis:
+    image: "redis:latest"
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - "6379:6379"
