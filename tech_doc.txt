@@ -1,0 +1,54 @@
+Technical Document
+Project Name: Speer BE Task(Notes App)
+
+
+Technology Choices:
+
+Django Rest Framework (DRF):
+
+    Rationale:
+
+        DRF is selected for its ability to efficiently build RESTful APIs with a consistent and modular structure.
+        Its built-in features such as serialization, viewsets, and authentication classes streamline the development process, promoting rapid and maintainable code.
+        Applicability to Task:
+
+    Applicability to Task:
+
+        DRF's integrated support for searching, throttling, and authentication aligns seamlessly with the requirements of creating, retrieving, sharing notes, and implementing throttling mechanisms.
+        PostgreSQL:
+
+PostgreSQL:
+    Rationale:
+
+        PostgreSQL is chosen for its reliability, ACID compliance, and advanced indexing capabilities.
+        Its scalability and robust transaction support make it suitable for handling the storage and retrieval of notes in a highly concurrent environment.
+    
+    Applicability to Task:
+
+        PostgreSQL's advanced indexing will optimize search queries, ensuring efficient retrieval of notes based on keywords.
+        The database's ACID compliance provides a solid foundation for data integrity and reliability.
+Redis:
+
+    Rationale:
+
+        Redis is employed for caching search results and implementing throttling.
+        Its in-memory data structure store enhances performance by reducing the load on the database during repetitive searches and enabling efficient rate limiting.
+    
+    Applicability to Task:
+
+        Redis, in conjunction with DRF's throttling system, provides a robust solution for preventing abuse and ensuring the scalability and responsiveness of the API.
+
+
+
+
+Benefits and Considerations:
+    Consistency and Maintainability:
+        The combination of DRF's structure and PostgreSQL's reliability contributes to a consistent and maintainable codebase.
+    Rapid Development:
+        DRF's built-in features expedite development, allowing for the quick implementation of note management functionalities.
+    Scalability:
+        PostgreSQL's scalability and Redis's caching mechanisms provide a scalable foundation for handling increased user demand and data volume.
+    Security:
+        The use of DRF's authentication classes, secure storage in PostgreSQL, and efficient rate limiting with Redis ensures a secure and reliable API.
+    Extensibility:
+        The modular design of DRF and the extensibility of PostgreSQL and Redis allow for easy integration of additional features or enhancements in the future.
