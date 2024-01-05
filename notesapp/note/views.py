@@ -1,6 +1,8 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
+from .throttle import NoteDetailThrottle, NoteListCreateThrottle
+
 from .pagination import CustomPageNumberPagination
 from .models import Note, NoteShare
 from django.contrib.auth.models import User
@@ -12,12 +14,12 @@ from django.core.cache import cache
 from django.conf import settings
 
 
-
 class NoteListCreateView(generics.ListCreateAPIView):
     serializer_class = NoteSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = CustomPageNumberPagination
+    throttle_classes = [NoteListCreateThrottle]
 
     def get_queryset(self):
         # Only include active notes (exclude soft-deleted notes)
@@ -40,11 +42,13 @@ class NoteListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
 class NoteDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [NoteDetailThrottle]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -54,6 +58,7 @@ class NoteDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance):
         instance.soft_delete()
+
 
 class NoteShareView(generics.CreateAPIView):
     queryset = NoteShare.objects.all()
@@ -95,6 +100,7 @@ class SharedMembersView(generics.ListAPIView):
     def get_queryset(self):
         note_id = self.kwargs.get('pk')
         return NoteShare.objects.filter(note_id=note_id).select_related('shared_with')
+    
 
 class SearchNotesAPIView(generics.ListAPIView):
     serializer_class = NoteSerializer
